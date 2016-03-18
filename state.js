@@ -170,6 +170,8 @@
       onempty = function (i, j){};
     }
     
+    clearHandlers();
+    
     return {
       valid: valid,
       fill: fill,
