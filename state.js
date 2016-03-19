@@ -1,6 +1,12 @@
 /***** State *****/
 
 (function (udf){
+  if (typeof module !== 'undefined'){
+    var $ = require('../tools/tools.js');
+  }
+  
+  var udfp = $.udfp;
+  
   function create(rows, cols, v){
     var a = [];
     for (var i = 0; i < rows; i++){
@@ -189,7 +195,7 @@
     };
   }
   
-  window.S = {
+  var o = {
     create: create,
     createfrom: createfrom,
     valid: valid,
@@ -198,5 +204,13 @@
     makeSimpleState: makeSimpleState,
     makeState: makeState
   };
+  
+  if (typeof window !== 'undefined'){
+    window.S = o;
+  }
+  
+  if (typeof module !== 'undefined'){
+    module.exports = o;
+  }
   
 })();

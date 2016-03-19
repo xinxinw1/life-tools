@@ -3,6 +3,12 @@
 /* require tools */
 
 (function (udf){
+  if (typeof module !== 'undefined'){
+    var $ = require('./tools-ext.js');
+    var S = require('./state.js');
+  }
+  
+  var itrrefresh = $.itrrefresh;
   
   var createfrom = S.createfrom;
   var filled = S.filled;
@@ -98,9 +104,17 @@
     };
   }
   
-  window.LS = {
+  var o = {
     next: next,
     makeLifeState: makeLifeState,
   };
+  
+  if (typeof window !== 'undefined'){
+    window.LS = o;
+  }
+  
+  if (typeof exports !== 'undefined'){
+    module.exports = o;
+  }
   
 })();
