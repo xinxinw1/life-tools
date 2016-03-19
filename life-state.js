@@ -3,6 +3,11 @@
 /* require tools */
 
 (function (udf){
+  if (typeof window !== 'undefined'){
+    var $ = window.$;
+    var S = window.S;
+  }
+  
   if (typeof module !== 'undefined'){
     var $ = require('./tools-ext.js');
     var S = require('./state.js');
@@ -68,7 +73,7 @@
     var over = state.over;
     var sup = {};
     
-    var onfill, onempty, onsetstate;
+    var onfill, onempty, onsetstate, onstart, onstop;
     
     sup.fill = over.fill;
     
@@ -97,24 +102,33 @@
       }
     };
     
-    function clearHandlers(){
-      onfill = function (i, j){};
-      onempty = function (i, j){};
-      onsetstate = function (newstate){};
-    }
-    
-    clearHandlers();
-    
     runner.onrefresh = function (){
        onsetstate(state.getState());
     };
     
-    var onstop = function (){};
+    runner.onstart = function (){
+      onstart();
+    };
     
     runner.onstop = function (){
       runner.refresh();
       onstop();
     };
+    
+    function clearHandlers(){
+      onfill = function (i, j){};
+      onempty = function (i, j){};
+      onsetstate = function (newstate){};
+      onstart = function (){};
+      onstop = function (){};
+    }
+    
+    clearHandlers();
+    
+    function clean(){
+      runner.stop();
+      clearHandlers();
+    }
     
     function clear(){
       runner.stop();
@@ -126,11 +140,7 @@
     }
     
     return {
-      set onfill(f){onfill = f;},
-      set onempty(f){onempty = f;},
-      set onsetstate(f){onsetstate = f;},
-      clearHandlers: clearHandlers,
-      valie: state.valid,
+      valid: state.valid,
       fill: state.fill,
       filled: state.filled,
       empty: state.empty,
@@ -138,8 +148,12 @@
       setNum: state.setNum,
       getState: state.getState,
       setState: state.setState,
-      set onstart(f){runner.onstart = f;},
+      set onfill(f){onfill = f;},
+      set onempty(f){onempty = f;},
+      set onsetstate(f){onsetstate = f;},
+      set onstart(f){onstart = f;},
       set onstop(f){onstop = f;},
+      clearHandlers: clearHandlers,
       start: runner.start,
       stop: runner.stop,
       startstop: runner.startstop,
@@ -148,7 +162,8 @@
       refresh: runner.refresh,
       refspeed: runner.refspeed,
       clear: clear,
-      step: step
+      step: step,
+      clean: clean
     };
   }
   

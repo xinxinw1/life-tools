@@ -1,6 +1,10 @@
 /***** Tools Ext *****/
 
 (function (udf){
+  if (typeof window !== 'undefined'){
+    var $ = window.$;
+  }
+  
   if (typeof module !== 'undefined'){
     var $ = require('../tools/tools.js');
   }

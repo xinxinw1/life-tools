@@ -1,6 +1,10 @@
 /***** State *****/
 
 (function (udf){
+  if (typeof window !== 'undefined'){
+    var $ = window.$;
+  }
+  
   if (typeof module !== 'undefined'){
     var $ = require('../tools/tools.js');
   }
@@ -49,12 +53,47 @@
     }
   }
   
+  function fillemptysys(){
+    var over = {};
+    
+    over.fill = function (i, j){};
+    over.empty = function (i, j){};
+    
+    function fill(i, j){
+      over.fill(i, j);
+    }
+    
+    function empty(i, j){
+      over.empty(i, j);
+    }
+    
+    function set(tf, i, j){
+      (tf?fill:empty)(i, j);
+    }
+    
+    function setNum(st, i, j){
+      set(st === 1, i, j);
+    }
+    
+    return {
+      over: over,
+      fill: fill,
+      empty: empty,
+      set: set,
+      setNum: setNum
+    };
+  }
+  
   function makeSimpleState(rows, cols){
-    var vars = {}; var over = {};
+    var vars = {};
     
     function valid(i, j){
       return i >= 0 && j >= 0 && i < rows && j < cols;
     }
+    
+    var fes = fillemptysys();
+    
+    var over = fes.over;
     
     over.fill = function (i, j){
       if (!valid(i, j))return;
@@ -66,25 +105,14 @@
       vars.state[i][j] = 0;
     };
     
-    function fill(i, j){
-      over.fill(i, j);
-    }
-    
-    function empty(i, j){
-      over.empty(i, j);
-    }
+    var fill = fes.fill;
+    var empty = fes.empty;
+    var set = fes.set;
+    var setNum = fes.setNum;
     
     function filled(i, j){
       if (!valid(i, j))return false;
       return vars.state[i][j] === 1;
-    }
-    
-    function set(tf, i, j){
-      (tf?fill:empty)(i, j);
-    }
-    
-    function setNum(st, i, j){
-      set(st === 1, i, j);
     }
     
     function toggle(i, j){
@@ -194,6 +222,7 @@
     valid: valid,
     filled: filled,
     apply: apply,
+    fillemptysys: fillemptysys,
     makeSimpleState: makeSimpleState,
     makeState: makeState
   };
