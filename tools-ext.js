@@ -120,12 +120,12 @@
     var needreset = true;
     var timr;
     var runs;
+    var isstarted = false;
     
     function run(){
       if (needreset){
         runs = 0;
         timr = timer();
-        onreset();
         needreset = false;
       }
       //console.log("behind: " + (timr.time()-(runs*n)));
@@ -136,15 +136,15 @@
     
     var onstart = function (){};
     var onstop = function (){};
-    var onreset = function (){};
     
     function started(){
-      return !udfp(runner);
+      return isstarted;
     }
     
     function start(){
       if (!started()){
         onstart();
+        isstarted = true;
         run();
       }
     }
@@ -154,6 +154,7 @@
         clearTimeout(runner);
         runner = udf;
         needreset = true;
+        isstarted = false;
         onstop();
       }
     }
@@ -175,7 +176,6 @@
       started: started,
       set onstart(f){onstart = f},
       set onstop(f){onstop = f;},
-      set onreset(f){onreset = f;},
       interval: interval
     }
   }
@@ -198,8 +198,7 @@
       started: runner.started,
       set onstart(f){runner.onstart = f},
       set onstop(f){runner.onstop = f;},
-      speed: speed,
-      runner: runner
+      speed: speed
     };
   }
   
@@ -219,7 +218,7 @@
     runner.onstop = function (){
       refresher.reset();
       onstop();
-    }
+    };
     
     function run(){
       f();

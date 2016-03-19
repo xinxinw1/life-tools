@@ -50,25 +50,33 @@
   }
   
   function makeSimpleState(rows, cols){
-    var state = create(rows, cols, 0);
+    var vars = {}; var over = {};
     
     function valid(i, j){
-      return i >= 0 && j >= 0 && i < state.length && j < state[i].length;
+      return i >= 0 && j >= 0 && i < rows && j < cols;
     }
     
-    function fill(i, j){
+    over.fill = function (i, j){
       if (!valid(i, j))return;
-      state[i][j] = 1;
+      vars.state[i][j] = 1;
+    };
+    
+    over.empty = function (i, j){
+      if (!valid(i, j))return;
+      vars.state[i][j] = 0;
+    };
+    
+    function fill(i, j){
+      over.fill(i, j);
     }
     
     function empty(i, j){
-      if (!valid(i, j))return;
-      state[i][j] = 0;
+      over.empty(i, j);
     }
     
     function filled(i, j){
       if (!valid(i, j))return false;
-      return state[i][j] === 1;
+      return vars.state[i][j] === 1;
     }
     
     function set(tf, i, j){
@@ -84,11 +92,15 @@
     }
     
     function getState(){
-      return state;
+      return vars.state;
     }
     
+    over.setState = function (newstate){
+      vars.state = newstate;
+    };
+    
     function setState(newstate){
-      state = newstate;
+      over.setState(newstate);
     }
     
     function clear(){
@@ -98,6 +110,9 @@
     clear();
     
     return {
+      vars: vars,
+      over: over,
+      
       valid: valid,
       fill: fill,
       empty: empty,
@@ -112,64 +127,42 @@
   }
   
   function makeState(rows, cols){
-    var state = create(rows, cols, 0);
+    var state = makeSimpleState(rows, cols);
     
-    function valid(i, j){
-      return i >= 0 && j >= 0 && i < state.length && j < state[i].length;
-    }
+    var vars = state.vars;
+    var over = state.over;
     
-    function fill(i, j){
+    var onfill, onempty;
+    
+    var valid = state.valid;
+    
+    over.fill = function (i, j){
       if (!valid(i, j))return;
-      if (state[i][j] !== 1){
-        state[i][j] = 1;
+      if (vars.state[i][j] !== 1){
+        vars.state[i][j] = 1;
         onfill(i, j);
       }
-    }
+    };
     
-    function empty(i, j){
+    over.empty = function (i, j){
       if (!valid(i, j))return;
-      if (state[i][j] === 1){
-        state[i][j] = 0;
+      if (vars.state[i][j] === 1){
+        vars.state[i][j] = 0;
         onempty(i, j);
       }
-    }
+    };
     
-    function filled(i, j){
-      if (!valid(i, j))return false;
-      return state[i][j] === 1;
-    }
+    var setNum = state.setNum;
     
-    function set(tf, i, j){
-      (tf?fill:empty)(i, j);
-    }
-    
-    function setNum(st, i, j){
-      set(st === 1, i, j);
-    }
-    
-    function toggle(i, j){
-      set(!filled(i, j), i, j);
-    }
-    
-    function getState(){
-      return state;
-    }
-    
-    function setState(newstate){
+    over.setState = function (newstate){
       for (var i = 0; i < rows; i++){
         for (var j = 0; j < cols; j++){
-          if ((state[i][j] === 1) !== (newstate[i][j] === 1)){
+          if ((vars.state[i][j] === 1) !== (newstate[i][j] === 1)){
             setNum(newstate[i][j], i, j);
           }
         }
       }
-    }
-    
-    function clear(){
-      setState(create(rows, cols, 0));
-    }
-    
-    var onfill, onempty;
+    };
     
     function clearHandlers(){
       onfill = function (i, j){};
@@ -179,16 +172,16 @@
     clearHandlers();
     
     return {
-      valid: valid,
-      fill: fill,
-      empty: empty,
-      filled: filled,
-      set: set,
-      setNum: setNum,
-      toggle: toggle,
-      getState: getState,
-      setState: setState,
-      clear: clear,
+      valid: state.valid,
+      fill: state.fill,
+      empty: state.empty,
+      filled: state.filled,
+      set: state.set,
+      setNum: state.setNum,
+      toggle: state.toggle,
+      getState: state.getState,
+      setState: state.setState,
+      clear: state.clear,
       set onfill(f){onfill = f;},
       set onempty(f){onempty = f;},
       clearHandlers: clearHandlers

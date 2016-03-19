@@ -63,35 +63,83 @@
   
   function makeLifeState(rows, cols){
     var state = makeSimpleState(rows, cols);
-    
     var runner = itrrefresh(step, 50, 1);
+    
+    var over = state.over;
+    var sup = {};
+    
+    var onfill, onempty, onsetstate;
+    
+    sup.fill = over.fill;
+    
+    over.fill = function (i, j){
+      sup.fill(i, j);
+      if (!runner.started()){
+        onfill(i, j);
+      }
+    };
+    
+    sup.empty = over.empty;
+    
+    over.empty = function (i, j){
+      sup.empty(i, j);
+      if (!runner.started()){
+        onempty(i, j);
+      }
+    };
+    
+    sup.setState = over.setState;
+    
+    over.setState = function (newstate){
+      sup.setState(newstate);
+      if (!runner.started()){
+        onsetstate(newstate);
+      }
+    };
+    
+    function clearHandlers(){
+      onfill = function (i, j){};
+      onempty = function (i, j){};
+      onsetstate = function (newstate){};
+    }
+    
+    clearHandlers();
+    
+    runner.onrefresh = function (){
+       onsetstate(state.getState());
+    };
+    
+    var onstop = function (){};
+    
+    runner.onstop = function (){
+      runner.refresh();
+      onstop();
+    };
+    
+    function clear(){
+      runner.stop();
+      state.clear();
+    }
     
     function step(){
       state.setState(next(state.getState()));
     }
     
-    var onrefresh = function (state){};
-    
-    runner.onrefresh = function (){
-       onrefresh(state.getState());
-    }
-    
-    function clear(){
-      state.clear();
-      runner.stop();
-    }
-    
     return {
+      set onfill(f){onfill = f;},
+      set onempty(f){onempty = f;},
+      set onsetstate(f){onsetstate = f;},
+      clearHandlers: clearHandlers,
+      valie: state.valid,
       fill: state.fill,
       filled: state.filled,
       empty: state.empty,
       set: state.set,
+      setNum: state.setNum,
       getState: state.getState,
       setState: state.setState,
-      step: step,
       set onstart(f){runner.onstart = f;},
-      set onstop(f){runner.onstop = f;},
-      set onrefresh(f){onrefresh = f;},
+      set onstop(f){onstop = f;},
       start: runner.start,
       stop: runner.stop,
       startstop: runner.startstop,
@@ -100,7 +148,7 @@
       refresh: runner.refresh,
       refspeed: runner.refspeed,
       clear: clear,
-      runner: runner
+      step: step
     };
   }
   
