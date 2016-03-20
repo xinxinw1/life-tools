@@ -67,6 +67,10 @@
       over.empty(i, j);
     }
     
+    function fillObj(i, j, obj){
+      apply(fill, i, j, obj);
+    }
+    
     function set(tf, i, j){
       (tf?fill:empty)(i, j);
     }
@@ -79,6 +83,7 @@
       over: over,
       fill: fill,
       empty: empty,
+      fillObj: fillObj,
       set: set,
       setNum: setNum
     };
@@ -107,6 +112,7 @@
     
     var fill = fes.fill;
     var empty = fes.empty;
+    var fillObj = fes.fillObj;
     var set = fes.set;
     var setNum = fes.setNum;
     
@@ -145,6 +151,7 @@
       fill: fill,
       empty: empty,
       filled: filled,
+      fillObj: fillObj,
       set: set,
       setNum: setNum,
       toggle: toggle,
@@ -204,6 +211,7 @@
       fill: state.fill,
       empty: state.empty,
       filled: state.filled,
+      fillObj: state.fillObj,
       set: state.set,
       setNum: state.setNum,
       toggle: state.toggle,

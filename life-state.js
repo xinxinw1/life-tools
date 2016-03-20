@@ -17,6 +17,7 @@
   
   var createfrom = S.createfrom;
   var filled = S.filled;
+  var apply = S.apply;
   var makeSimpleState = S.makeSimpleState;
   
   function next(state){
@@ -125,9 +126,14 @@
     
     clearHandlers();
     
-    function clean(){
+    function init(newstate){
+      if (!udfp(newstate))state.setState(newstate);
+    }
+    
+    function deinit(){
       runner.stop();
       clearHandlers();
+      return state.getState();
     }
     
     function clear(){
@@ -144,10 +150,12 @@
       fill: state.fill,
       filled: state.filled,
       empty: state.empty,
+      fillObj: state.fillObj,
       set: state.set,
       setNum: state.setNum,
       getState: state.getState,
       setState: state.setState,
+      fillObj: fillObj,
       set onfill(f){onfill = f;},
       set onempty(f){onempty = f;},
       set onsetstate(f){onsetstate = f;},
@@ -163,7 +171,8 @@
       refspeed: runner.refspeed,
       clear: clear,
       step: step,
-      clean: clean
+      init: init,
+      deinit: deinit
     };
   }
   
