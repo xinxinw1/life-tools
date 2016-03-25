@@ -74,7 +74,7 @@
     var over = state.over;
     var sup = {};
     
-    var onfill, onempty, onsetstate, onstart, onstop;
+    var onfill, onempty, onsetstate, onstart, onstop, onspeed, onrefspeed;
     
     sup.fill = over.fill;
     
@@ -116,12 +116,24 @@
       onstop();
     };
     
+    function speed(s){
+      runner.speed(s);
+      onspeed(s);
+    }
+    
+    function refspeed(r){
+      runner.refspeed(r);
+      onrefspeed(r);
+    }
+    
     function clearHandlers(){
       onfill = function (i, j){};
       onempty = function (i, j){};
       onsetstate = function (newstate){};
       onstart = function (){};
       onstop = function (){};
+      onspeed = function (s){};
+      onrefspeed = function (r){};
     }
     
     clearHandlers();
@@ -165,9 +177,11 @@
       stop: runner.stop,
       startstop: runner.startstop,
       started: runner.started,
-      speed: runner.speed,
+      speed: speed,
       refresh: runner.refresh,
-      refspeed: runner.refspeed,
+      refspeed: refspeed,
+      getSpeed: runner.getSpeed,
+      getRefspeed: runner.getRefspeed,
       clear: clear,
       step: step,
       init: init,

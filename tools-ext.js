@@ -248,6 +248,14 @@
       runner.speed(s2);
     }
     
+    function getSpeed(){
+      return s;
+    }
+    
+    function getRefspeed(){
+      return r;
+    }
+    
     function updateRefresher(){
       var runsPerRef = Math.round(s/r);
       refresher.setn(runsPerRef);
@@ -267,6 +275,8 @@
       speed: speed,
       refresh: refresh,
       refspeed: refspeed,
+      getSpeed: getSpeed,
+      getRefspeed: getRefspeed,
       runner: runner
     };
   }
