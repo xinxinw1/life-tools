@@ -172,6 +172,8 @@
       set onsetstate(f){onsetstate = f;},
       set onstart(f){onstart = f;},
       set onstop(f){onstop = f;},
+      set onspeed(f){onspeed = f;},
+      set onrefspeed(f){onrefspeed = f;},
       clearHandlers: clearHandlers,
       start: runner.start,
       stop: runner.stop,
