@@ -138,14 +138,22 @@
     
     clearHandlers();
     
-    function init(newstate){
-      if (!udfp(newstate))state.setState(newstate);
+    function init(o){
+      if (!udfp(o)){
+        state.setState(o.state);
+        runner.speed(o.speed);
+        runner.refspeed(o.refspeed);
+      }
     }
     
     function deinit(){
       runner.stop();
       clearHandlers();
-      return state.getState();
+      return {
+        state: state.getState(),
+        speed: runner.getSpeed(),
+        refspeed: runner.getRefspeed()
+      };
     }
     
     function clear(){
