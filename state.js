@@ -3,9 +3,7 @@
 (function (udf){
   if (typeof window !== 'undefined'){
     var $ = window.$;
-  }
-  
-  if (typeof module !== 'undefined'){
+  } else {
     var $ = require('../tools/tools.js');
   }
   

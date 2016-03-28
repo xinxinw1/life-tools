@@ -6,10 +6,8 @@
   if (typeof window !== 'undefined'){
     var $ = window.$;
     var S = window.S;
-  }
-  
-  if (typeof module !== 'undefined'){
-    var $ = require('./tools-ext.js');
+  } else {
+    var $ = require('../tools/tools.js');
     var S = require('./state.js');
   }
   
