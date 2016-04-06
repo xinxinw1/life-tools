@@ -8,6 +8,9 @@
   var elm = $.elm;
   var sty = $.sty;
   var att = $.att;
+  var loop = $.loop;
+  var repeat = $.repeat;
+  var det = $.det;
   
   var apply = S.apply;
   var makeState = S.makeState;
@@ -129,19 +132,74 @@
     elem.classList.add('sgrid');
     elem.classList.add(gridcls);
     var gridarr = [];
-    for (var i = 0; i < rows; i++){
-      gridarr[i] = [];
-      var row = elm("div");
-      for (var j = 0; j < cols; j++){
-        var col = elm("div");
-        col.onmouseenter = mkEnterFn(i, j);
-        col.onmousedown = mkDownFn(i, j);
-        col.onmouseup = mkUpFn(i, j);
-        att(row, col);
-        gridarr[i][j] = col;
-      }
-      att(elem, row);
+    var rowarr = [];
+    
+    function mkcol(i, j){
+      var col = elm("div");
+      col.onmouseenter = mkEnterFn(i, j);
+      col.onmousedown = mkDownFn(i, j);
+      col.onmouseup = mkUpFn(i, j);
+      return col;
     }
+    
+    function addcol(i){
+      // i is in gridarr
+      var j = gridarr[i].length;
+      var col = mkcol(i, j);
+      att(rowarr[i], col);
+      gridarr[i][j] = col;
+    }
+    
+    function addrow(cols){
+      var row = elm("div");
+      att(elem, row);
+      var i = rowarr.length;
+      rowarr.push(row);
+      gridarr.push([]);
+      repeat(cols, function (){
+        addcol(i);
+      });
+    }
+    
+    function remcol(i){
+      var col = gridarr[i].pop();
+      det(rowarr[i], col);
+    }
+    
+    function remrow(){
+      var row = rowarr.pop();
+      det(elem, row);
+      gridarr.pop();
+    }
+    
+    function addremn(n, add, rem){
+      if (n > 0){
+        repeat(n, add);
+      } else if (n < 0){
+        repeat(-n, rem);
+      }
+    }
+    
+    function addremcols(i, n){
+      addremn(n,
+        function (){addcol(i);},
+        function (){remcol(i);}
+      );
+    }
+    
+    function addremrows(cols, n){
+      addremn(n, function (){addrow(cols)}, remrow);
+    }
+    
+    function size(rows, cols){
+      loop(0, gridarr.length, function (i){
+        addremcols(i, cols-gridarr[i].length);
+      });
+      addremrows(cols, rows-gridarr.length);
+      state.size(rows, cols);
+    }
+    
+    size(rows, cols);
     
     return {
       valid: state.valid,
@@ -158,6 +216,7 @@
       setFillColor: setFillColor,
       setFillOpacity: setFillOpacity,
       setCellSize: setCellSize,
+      size: size,
       set onclick(f){onclick = f},
       set ondrag(f){ondrag = f},
       set savedata(f){savedata = f},
@@ -226,6 +285,12 @@
     
     var clearHandlers = overgrid.clearHandlers;
     
+    function size(rows, cols){
+      undergrid.size(rows, cols);
+      maingrid.size(rows, cols);
+      overgrid.size(rows, cols);
+    }
+    
     return {
       setBorder: setBorder,
       setCellSize: setCellSize,
@@ -251,7 +316,8 @@
       set onclickone(f){overgrid.onclickone = f;},
       set onenter(f){overgrid.onenter = f;},
       set onleavegrid(f){overgrid.onleavegrid = f;},
-      clearHandlers: clearHandlers
+      clearHandlers: clearHandlers,
+      size: size
     };
   }
   

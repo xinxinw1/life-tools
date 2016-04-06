@@ -4,26 +4,61 @@
   if (typeof window !== 'undefined'){
     var $ = window.$;
   } else {
-    var $ = require('../tools/tools.js');
+    var $ = require('./tools-ext.js');
   }
   
   var udfp = $.udfp;
+  var push = $.push;
+  var fnp = $.fnp;
   
-  function create(rows, cols, v){
+  function mkfn(v){
+    if (fnp(v))return v;
+    return function (){return v;};
+  }
+  
+  function createarr(len, v){
+    v = mkfn(v);
     var a = [];
-    for (var i = 0; i < rows; i++){
-      a[i] = [];
-      for (var j = 0; j < cols; j++){
-        a[i][j] = v;
-      }
+    for (var i = 0; i < len; i++){
+      a[i] = v();
     }
     return a;
+  }
+  
+  function create(rows, cols, v){
+    return createarr(rows, function (){return createarr(cols, v);});
   }
   
   function createfrom(state, v){
     var rows = state.length;
     var cols = (rows >= 1)?state[0].length:0;
     return create(rows, cols, v);
+  }
+  
+  function pushn(n, x, a){
+    x = mkfn(x);
+    for (var i = n; i >= 1; i--){
+      push(x(), a);
+    }
+  }
+  
+  function delnfromend(n, a){
+    a.splice(a.length-n, n);
+  }
+  
+  function changesizearr(a, l, v){
+    if (l > a.length){
+      pushn(l-a.length, v, a);
+    } else if (l < a.length){
+      delnfromend(a.length-l, a);
+    }
+  }
+  
+  function changesize(state, rows, cols, v){
+    for (var i = 0; i < state.length; i++){
+      changesizearr(state[i], cols, v);
+    }
+    changesizearr(state, rows, function (){return createarr(cols, v);});
   }
   
   function valid(state, i, j){
@@ -66,8 +101,12 @@
     }
     
     function fillObj(i, j, obj){
-      apply(fill, i, j, obj);
+      over.fillObj(i, j, obj);
     }
+    
+    over.fillObj = function (i, j, obj){
+      apply(fill, i, j, obj);
+    };
     
     function set(tf, i, j){
       (tf?fill:empty)(i, j);
@@ -89,9 +128,11 @@
   
   function makeSimpleState(rows, cols){
     var vars = {};
+    vars.rows = rows;
+    vars.cols = cols;
     
     function valid(i, j){
-      return i >= 0 && j >= 0 && i < rows && j < cols;
+      return i >= 0 && j >= 0 && i < vars.rows && j < vars.cols;
     }
     
     var fes = fillemptysys();
@@ -135,8 +176,14 @@
       over.setState(newstate);
     }
     
+    function size(rows, cols){
+      changesize(vars.state, rows, cols, 0);
+      vars.rows = rows;
+      vars.cols = cols;
+    }
+    
     function clear(){
-      setState(create(rows, cols, 0));
+      setState(create(vars.rows, vars.cols, 0));
     }
     
     clear();
@@ -155,6 +202,7 @@
       toggle: toggle,
       getState: getState,
       setState: setState,
+      size: size,
       clear: clear
     };
   }
@@ -188,8 +236,8 @@
     var setNum = state.setNum;
     
     over.setState = function (newstate){
-      for (var i = 0; i < rows; i++){
-        for (var j = 0; j < cols; j++){
+      for (var i = 0; i < vars.rows; i++){
+        for (var j = 0; j < vars.cols; j++){
           if ((vars.state[i][j] === 1) !== (newstate[i][j] === 1)){
             setNum(newstate[i][j], i, j);
           }
@@ -215,6 +263,7 @@
       toggle: state.toggle,
       getState: state.getState,
       setState: state.setState,
+      size: state.size,
       clear: state.clear,
       set onfill(f){onfill = f;},
       set onempty(f){onempty = f;},
@@ -223,6 +272,12 @@
   }
   
   var o = {
+    mkfn: mkfn,
+    createarr: createarr,
+    pushn: pushn,
+    delnfromend: delnfromend,
+    changesizearr: changesizearr,
+    changesize: changesize,
     create: create,
     createfrom: createfrom,
     valid: valid,

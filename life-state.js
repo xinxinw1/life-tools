@@ -72,7 +72,7 @@
     var over = state.over;
     var sup = {};
     
-    var onfill, onempty, onsetstate, onstart, onstop, onspeed, onrefspeed;
+    var onfill, onempty, onsetstate, onstart, onstop, onspeed, onrefspeed, onfillobj, onsize;
     
     sup.fill = over.fill;
     
@@ -92,6 +92,17 @@
       }
     };
     
+    sup.fillObj = over.fillObj;
+    
+    over.fillObj = function (i, j, obj){
+      if (!runner.started() && onfillobj !== defonfillobj){
+        S.apply(sup.fill, i, j, obj);
+        onfillobj(i, j, obj);
+      } else {
+        sup.fillObj(i, j, obj);
+      }
+    };
+    
     sup.setState = over.setState;
     
     over.setState = function (newstate){
@@ -100,6 +111,11 @@
         onsetstate(newstate);
       }
     };
+    
+    function size(r, c){
+      state.size(r, c);
+      onsize(r, c);
+    }
     
     runner.onrefresh = function (){
        onsetstate(state.getState());
@@ -124,6 +140,8 @@
       onrefspeed(r);
     }
     
+    var defonfillobj = function (i, j, obj){};
+    
     function clearHandlers(){
       onfill = function (i, j){};
       onempty = function (i, j){};
@@ -132,6 +150,8 @@
       onstop = function (){};
       onspeed = function (s){};
       onrefspeed = function (r){};
+      onfillobj = defonfillobj;
+      onsize = function (r, c){};
     }
     
     clearHandlers();
@@ -180,6 +200,8 @@
       set onstop(f){onstop = f;},
       set onspeed(f){onspeed = f;},
       set onrefspeed(f){onrefspeed = f;},
+      set onfillobj(f){onfillobj = f;},
+      set onsize(f){onsize = f;},
       clearHandlers: clearHandlers,
       start: runner.start,
       stop: runner.stop,
@@ -190,6 +212,7 @@
       refspeed: refspeed,
       getSpeed: runner.getSpeed,
       getRefspeed: runner.getRefspeed,
+      size: size,
       clear: clear,
       step: step,
       init: init,
