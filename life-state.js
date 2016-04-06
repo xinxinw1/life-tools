@@ -158,6 +158,7 @@
     
     function init(o){
       if (!udfp(o)){
+        state.size(o.size[0], o.size[1]);
         state.setState(o.state);
         runner.speed(o.speed);
         runner.refspeed(o.refspeed);
@@ -170,7 +171,8 @@
       return {
         state: state.getState(),
         speed: runner.getSpeed(),
-        refspeed: runner.getRefspeed()
+        refspeed: runner.getRefspeed(),
+        size: state.getSize()
       };
     }
     
