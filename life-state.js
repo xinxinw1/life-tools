@@ -193,6 +193,7 @@
       setNum: state.setNum,
       getState: state.getState,
       setState: state.setState,
+      getSize: state.getSize,
       set onfill(f){onfill = f;},
       set onempty(f){onempty = f;},
       set onsetstate(f){onsetstate = f;},

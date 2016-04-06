@@ -182,6 +182,10 @@
       vars.cols = cols;
     }
     
+    function getSize(){
+      return [vars.rows, vars.cols];
+    }
+    
     function clear(){
       setState(create(vars.rows, vars.cols, 0));
     }
@@ -203,6 +207,7 @@
       getState: getState,
       setState: setState,
       size: size,
+      getSize: getSize,
       clear: clear
     };
   }
@@ -264,6 +269,7 @@
       getState: state.getState,
       setState: state.setState,
       size: state.size,
+      getSize: state.getSize,
       clear: state.clear,
       set onfill(f){onfill = f;},
       set onempty(f){onempty = f;},
