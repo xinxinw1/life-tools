@@ -23,7 +23,7 @@
     var newstate = createfrom(state, -1);
     for (var i = 0; i < state.length; i++){
       for (var j = 0; j < state[i].length; j++){
-        if (state[i][j] === 1){
+        if (state[i][j] >= 1){
           fillNewstateCircle(newstate, state, i, j);
         }
       }
@@ -44,25 +44,43 @@
   }
   
   function next1(state, i, j){
-    var n = neighbors(state, i, j);
+    var obj = neighbors(state, i, j);
+    var n = obj.n;
     if (filled(state, i, j)){
-      return (n == 2 || n == 3)?1:0;
+      return (n == 2 || n == 3)?state[i][j]:0;
     } else {
-      return (n == 3)?1:0;
+      if (n !== 3)return 0;
+      var colors = obj.colors;
+      for (var i in colors){
+        if (colors[i] == 2)return i;
+      }
+      return 1;
     }
   }
   
   function neighbors(state, i, j){
-    var n = 0;
-    if (filled(state, i-1, j-1))n++;
-    if (filled(state, i-1, j))n++;
-    if (filled(state, i-1, j+1))n++;
-    if (filled(state, i, j-1))n++;
-    if (filled(state, i, j+1))n++;
-    if (filled(state, i+1, j-1))n++;
-    if (filled(state, i+1, j))n++;
-    if (filled(state, i+1, j+1))n++;
-    return n;
+    var obj = {
+      n: 0,
+      colors: {}
+    };
+    procNeighbor(obj, state, i-1, j-1);
+    procNeighbor(obj, state, i-1, j);
+    procNeighbor(obj, state, i-1, j+1);
+    procNeighbor(obj, state, i, j-1);
+    procNeighbor(obj, state, i, j+1);
+    procNeighbor(obj, state, i+1, j-1);
+    procNeighbor(obj, state, i+1, j);
+    procNeighbor(obj, state, i+1, j+1);
+    return obj;
+  }
+  
+  function procNeighbor(obj, state, i, j){
+    var value = state[i][j];
+    if (value >= 1){
+      obj.n++;
+      if (udfp(obj.colors[value]))obj.colors[value] = 1;
+      else obj.colors[value]++;
+    }
   }
   
   function makeLifeState(rows, cols){
@@ -72,34 +90,25 @@
     var over = state.over;
     var sup = {};
     
-    var onfill, onempty, onsetstate, onstart, onstop, onspeed, onrefspeed, onfillobj, onsize;
+    var onset, onsetstate, onstart, onstop, onspeed, onrefspeed, onsetobj, onsize;
     
-    sup.fill = over.fill;
+    sup.set = over.set;
     
-    over.fill = function (i, j){
-      sup.fill(i, j);
+    over.set = function (st, i, j){
+      sup.set(st, i, j);
       if (!runner.started()){
-        onfill(i, j);
+        onset(st, i, j);
       }
     };
     
-    sup.empty = over.empty;
+    sup.setObj = over.setObj;
     
-    over.empty = function (i, j){
-      sup.empty(i, j);
-      if (!runner.started()){
-        onempty(i, j);
-      }
-    };
-    
-    sup.fillObj = over.fillObj;
-    
-    over.fillObj = function (i, j, obj){
-      if (!runner.started() && onfillobj !== defonfillobj){
-        S.apply(sup.fill, i, j, obj);
-        onfillobj(i, j, obj);
+    over.setObj = function (st, i, j, obj){
+      if (!runner.started() && onsetobj !== defonsetobj){
+        S.apply(function (i, j){sup.set(st, i, j);}, i, j, obj);
+        onsetobj(st, i, j, obj);
       } else {
-        sup.fillObj(i, j, obj);
+        sup.setObj(st, i, j, obj);
       }
     };
     
@@ -140,17 +149,16 @@
       onrefspeed(r);
     }
     
-    var defonfillobj = function (i, j, obj){};
+    var defonsetobj = function (i, j, obj){};
     
     function clearHandlers(){
-      onfill = function (i, j){};
-      onempty = function (i, j){};
+      onset = function (i, j){};
       onsetstate = function (newstate){};
       onstart = function (){};
       onstop = function (){};
       onspeed = function (s){};
       onrefspeed = function (r){};
-      onfillobj = defonfillobj;
+      onsetobj = defonsetobj;
       onsize = function (r, c){};
     }
     
@@ -187,23 +195,19 @@
     
     return {
       valid: state.valid,
-      fill: state.fill,
-      filled: state.filled,
-      empty: state.empty,
-      fillObj: state.fillObj,
       set: state.set,
-      setNum: state.setNum,
+      filled: state.filled,
+      setObj: state.setObj,
       getState: state.getState,
       setState: state.setState,
       getSize: state.getSize,
-      set onfill(f){onfill = f;},
-      set onempty(f){onempty = f;},
+      set onset(f){onset = f;},
       set onsetstate(f){onsetstate = f;},
       set onstart(f){onstart = f;},
       set onstop(f){onstop = f;},
       set onspeed(f){onspeed = f;},
       set onrefspeed(f){onrefspeed = f;},
-      set onfillobj(f){onfillobj = f;},
+      set onsetobj(f){onsetobj = f;},
       set onsize(f){onsize = f;},
       clearHandlers: clearHandlers,
       start: runner.start,

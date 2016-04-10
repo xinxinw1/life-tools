@@ -67,7 +67,7 @@
   
   function filled(state, i, j){
     if (!valid(state, i, j))return false;
-    return state[i][j] === 1;
+    return state[i][j] >= 1;
   }
   
   function apply(fill, i, j, obj){
@@ -89,40 +89,31 @@
   function fillemptysys(){
     var over = {};
     
-    over.fill = function (i, j){};
-    over.empty = function (i, j){};
+    over.set = function (st, i, j){};
     
-    function fill(i, j){
-      over.fill(i, j);
+    function set(st, i, j){
+      over.set(st, i, j);
     }
     
-    function empty(i, j){
-      over.empty(i, j);
+    function setObj(st, i, j, obj){
+      over.setObj(st, i, j, obj);
     }
     
-    function fillObj(i, j, obj){
-      over.fillObj(i, j, obj);
-    }
-    
-    over.fillObj = function (i, j, obj){
-      apply(fill, i, j, obj);
+    over.setObj = function (st, i, j, obj){
+      apply(setter(st), i, j, obj);
     };
     
-    function set(tf, i, j){
-      (tf?fill:empty)(i, j);
-    }
-    
-    function setNum(st, i, j){
-      set(st === 1, i, j);
+    function setter(st){
+      return function (i, j){
+        set(st, i, j);
+      };
     }
     
     return {
       over: over,
-      fill: fill,
-      empty: empty,
-      fillObj: fillObj,
-      set: set,
-      setNum: setNum
+      set: set, 
+      setObj: setObj,
+      setter: setter
     };
   }
   
@@ -141,29 +132,18 @@
     
     var over = fes.over;
     
-    over.fill = function (i, j){
+    over.set = function (st, i, j){
       if (!valid(i, j))return;
-      vars.state[i][j] = 1;
+      vars.state[i][j] = st;
     };
     
-    over.empty = function (i, j){
-      if (!valid(i, j))return;
-      vars.state[i][j] = 0;
-    };
-    
-    var fill = fes.fill;
-    var empty = fes.empty;
-    var fillObj = fes.fillObj;
     var set = fes.set;
-    var setNum = fes.setNum;
+    var setObj = fes.setObj;
+    var setter = fes.setter;
     
     function filled(i, j){
       if (!valid(i, j))return false;
-      return vars.state[i][j] === 1;
-    }
-    
-    function toggle(i, j){
-      set(!filled(i, j), i, j);
+      return vars.state[i][j] >= 1;
     }
     
     function getState(){
@@ -205,7 +185,6 @@
       fillObj: fillObj,
       set: set,
       setNum: setNum,
-      toggle: toggle,
       getState: getState,
       setState: setState,
       size: size,
@@ -224,29 +203,21 @@
     
     var valid = state.valid;
     
-    over.fill = function (i, j){
+    over.set = function (st, i, j){
       if (!valid(i, j))return;
-      if (vars.state[i][j] !== 1){
-        vars.state[i][j] = 1;
-        onfill(i, j);
+      if (vars.state[i][j] !== st){
+        vars.state[i][j] = st;
+        onset(st, i, j);
       }
     };
     
-    over.empty = function (i, j){
-      if (!valid(i, j))return;
-      if (vars.state[i][j] === 1){
-        vars.state[i][j] = 0;
-        onempty(i, j);
-      }
-    };
-    
-    var setNum = state.setNum;
+    var set = state.set;
     
     over.setState = function (newstate){
       for (var i = 0; i < vars.rows; i++){
         for (var j = 0; j < vars.cols; j++){
-          if ((vars.state[i][j] === 1) !== (newstate[i][j] === 1)){
-            setNum(newstate[i][j], i, j);
+          if (vars.state[i][j] !== newstate[i][j]){
+            set(newstate[i][j], i, j);
           }
         }
       }
@@ -261,13 +232,9 @@
     
     return {
       valid: state.valid,
-      fill: state.fill,
-      empty: state.empty,
-      filled: state.filled,
-      fillObj: state.fillObj,
       set: state.set,
-      setNum: state.setNum,
-      toggle: state.toggle,
+      setObj: state.setObj,
+      setter: state.setter,
       getState: state.getState,
       setState: state.setState,
       size: state.size,
