@@ -52,7 +52,7 @@
       if (n !== 3)return 0;
       var colors = obj.colors;
       for (var i in colors){
-        if (colors[i] == 2)return i;
+        if (colors[i] >= 2)return i;
       }
       return 1;
     }
@@ -75,8 +75,8 @@
   }
   
   function procNeighbor(obj, state, i, j){
-    var value = state[i][j];
-    if (value >= 1){
+    if (filled(state, i, j)){
+      var value = state[i][j];
       obj.n++;
       if (udfp(obj.colors[value]))obj.colors[value] = 1;
       else obj.colors[value]++;
@@ -196,7 +196,7 @@
     return {
       valid: state.valid,
       set: state.set,
-      filled: state.filled,
+      get: state.get,
       setObj: state.setObj,
       getState: state.getState,
       setState: state.setState,
@@ -230,6 +230,7 @@
   var o = {
     next: next,
     makeLifeState: makeLifeState,
+    neighbors: neighbors
   };
   
   if (typeof window !== 'undefined'){

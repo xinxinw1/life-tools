@@ -141,9 +141,9 @@
     var setObj = fes.setObj;
     var setter = fes.setter;
     
-    function filled(i, j){
+    function get(i, j){
       if (!valid(i, j))return false;
-      return vars.state[i][j] >= 1;
+      return vars.state[i][j];
     }
     
     function getState(){
@@ -179,12 +179,10 @@
       over: over,
       
       valid: valid,
-      fill: fill,
-      empty: empty,
-      filled: filled,
-      fillObj: fillObj,
       set: set,
-      setNum: setNum,
+      get: get,
+      setObj: setObj,
+      setter: setter,
       getState: getState,
       setState: setState,
       size: size,
@@ -199,7 +197,7 @@
     var vars = state.vars;
     var over = state.over;
     
-    var onfill, onempty;
+    var onset;
     
     var valid = state.valid;
     
@@ -224,8 +222,7 @@
     };
     
     function clearHandlers(){
-      onfill = function (i, j){};
-      onempty = function (i, j){};
+      onset = function (st, i, j){};
     }
     
     clearHandlers();
@@ -240,8 +237,7 @@
       size: state.size,
       getSize: state.getSize,
       clear: state.clear,
-      set onfill(f){onfill = f;},
-      set onempty(f){onempty = f;},
+      set onset(f){onset = f;},
       clearHandlers: clearHandlers
     };
   }
