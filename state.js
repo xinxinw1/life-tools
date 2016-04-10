@@ -127,6 +127,8 @@
   }
   
   function makeSimpleState(rows, cols){
+    if (udfp(rows))rows = 0;
+    if (udfp(cols))cols = 0;
     var vars = {};
     vars.rows = rows;
     vars.cols = cols;
