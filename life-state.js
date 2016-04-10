@@ -12,6 +12,8 @@
   }
   
   var itrrefresh = $.itrrefresh;
+  var udfp = $.udfp;
+  var rand = $.rand;
   
   var createfrom = S.createfrom;
   var filled = S.filled;
@@ -51,10 +53,12 @@
     } else {
       if (n !== 3)return 0;
       var colors = obj.colors;
+      var colorsarr = [];
       for (var i in colors){
+        colorsarr.push(i);
         if (colors[i] >= 2)return i;
       }
-      return 1;
+      return colorsarr[rand(0, colorsarr.length-1)];
     }
   }
   
