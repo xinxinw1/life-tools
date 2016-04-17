@@ -12,7 +12,7 @@
   function makeSwitchState(){
     var state = udf;
     
-    var onset, onsetstate, onstart, onstop, onspeed, onrefspeed, onsize;
+    var onset, onsetstate, onstart, onstop, onspeed, onrefspeed, onsize, oncolor;
     
     function clearHandlers(){
       onset = function (i, j){};
@@ -22,14 +22,12 @@
       onspeed = function (s){};
       onrefspeed = function (r){};
       onsize = function (r, c){};
+      oncolor = function (c){};
     }
     
     clearHandlers();
     
     function switchState(newstate){
-      if (!udfp(state))newstate.init(state.deinit());
-      else newstate.init();
-      
       newstate.onset = onset;
       newstate.onsetstate = onsetstate;
       newstate.onstart = onstart;
@@ -37,6 +35,10 @@
       newstate.onspeed = onspeed;
       newstate.onrefspeed = onrefspeed;
       newstate.onsize = onsize;
+      newstate.oncolor = oncolor;
+      
+      if (!udfp(state))newstate.init(state.deinit());
+      else newstate.init();
       
       state = newstate;
     }
@@ -51,7 +53,8 @@
       set onspeed(f){onspeed = f;},
       set onrefspeed(f){onrefspeed = f;},
       set onfillobj(f){onfillobj = f;},
-      set onsize(f){onsize = f;}
+      set onsize(f){onsize = f;},
+      set oncolor(f){oncolor = f;}
     }
     
     function makePassFn(o, key){
@@ -70,7 +73,7 @@
       return obj;
     }
     
-    att(o, makePassObj(function (){return state;}, 'valid', 'set', 'get', 'setObj', 'getState', 'setState', 'getSize', 'start', 'stop', 'startstop', 'started', 'speed', 'refresh', 'refspeed', 'getSpeed', 'getRefspeed', 'size', 'clear', 'step', 'init', 'deinit'));
+    att(o, makePassObj(function (){return state;}, 'valid', 'fill', 'empty', 'fillObj', 'filltf', 'filled', 'getState', 'setState', 'getSize', 'start', 'stop', 'startstop', 'started', 'speed', 'refresh', 'refspeed', 'getSpeed', 'getRefspeed', 'size', 'clear', 'step', 'color', 'getColor', 'init', 'deinit'));
     
     return o;
   }

@@ -89,7 +89,11 @@
   
   function makeLifeState(rows, cols){
     var state = makeSimpleState(rows, cols);
-    var runner = itrrefresh(step, 50, 1);
+    
+    var s = 50;
+    var r = 1;
+    
+    var runner = itrrefresh(step, s, r);
     
     var over = state.over;
     var sup = {};
@@ -170,10 +174,14 @@
     
     function init(o){
       if (!udfp(o)){
-        state.size(o.size[0], o.size[1]);
+        size(o.size[0], o.size[1]);
         state.setState(o.state);
-        runner.speed(o.speed);
-        runner.refspeed(o.refspeed);
+        speed(o.speed);
+        refspeed(o.refspeed);
+      } else {
+        size(rows, cols);
+        speed(s);
+        refspeed(r);
       }
     }
     
